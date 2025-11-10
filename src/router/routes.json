@@ -83,5 +83,10 @@
         ]
       }
     }
+},
+  "projects": {
+    "path": "/projects",
+    "requiresAuth": true,
+    "title": "Projects"
   }
 }
