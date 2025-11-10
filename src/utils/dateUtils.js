@@ -25,12 +25,15 @@ export const isOverdue = (date) => {
 
 export const sortByDueDate = (tasks) => {
   return [...tasks].sort((a, b) => {
-    if (!a.dueDate && !b.dueDate) return 0
-    if (!a.dueDate) return 1
-    if (!b.dueDate) return -1
+    const dueDateA = a.due_date_c || a.dueDate
+    const dueDateB = b.due_date_c || b.dueDate
     
-    const dateA = typeof a.dueDate === 'string' ? parseISO(a.dueDate) : a.dueDate
-    const dateB = typeof b.dueDate === 'string' ? parseISO(b.dueDate) : b.dueDate
+    if (!dueDateA && !dueDateB) return 0
+    if (!dueDateA) return 1
+    if (!dueDateB) return -1
+    
+    const dateA = typeof dueDateA === 'string' ? parseISO(dueDateA) : dueDateA
+    const dateB = typeof dueDateB === 'string' ? parseISO(dueDateB) : dueDateB
     
     return dateA - dateB
   })

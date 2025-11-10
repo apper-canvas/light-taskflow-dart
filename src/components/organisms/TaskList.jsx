@@ -1,9 +1,9 @@
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import TaskCard from '@/components/organisms/TaskCard'
-import Button from '@/components/atoms/Button'
-import ApperIcon from '@/components/ApperIcon'
-import Empty from '@/components/ui/Empty'
+import React, { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import ApperIcon from "@/components/ApperIcon";
+import Button from "@/components/atoms/Button";
+import TaskCard from "@/components/organisms/TaskCard";
+import Empty from "@/components/ui/Empty";
 
 const TaskList = ({ 
   tasks, 
@@ -13,13 +13,20 @@ const TaskList = ({
   onDelete, 
   showCompleted = false 
 }) => {
-  const [showCompletedSection, setShowCompletedSection] = useState(false)
+  const [showCompletedSection, setShowCompletedSection] = useState(false);
 
-  const activeTasks = tasks.filter(task => !task.completed)
-  const completedTasks = tasks.filter(task => task.completed)
+  const activeTasks = tasks.filter(task => {
+    const completed = task.completed_c !== undefined ? task.completed_c : task.completed
+    return !completed
+  })
+  const completedTasks = tasks.filter(task => {
+    const completed = task.completed_c !== undefined ? task.completed_c : task.completed
+    return completed
+  })
 
   const getCategoryForTask = (task) => {
-    return categories.find(cat => cat.Id.toString() === task.categoryId?.toString())
+    const categoryId = task.category_id_c?.Id || task.category_id_c || task.categoryId
+    return categories.find(cat => cat.Id.toString() === categoryId?.toString())
   }
 
   const renderTasks = (taskList, title, showToggle = false) => {

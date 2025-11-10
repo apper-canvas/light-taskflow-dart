@@ -19,7 +19,12 @@ const TaskCard = ({ task, category, onComplete, onEdit, onDelete }) => {
     }, 300)
   }
 
-  const overdue = !task.completed && task.dueDate && isOverdue(task.dueDate)
+const completed = task.completed_c !== undefined ? task.completed_c : task.completed
+  const dueDate = task.due_date_c || task.dueDate
+  const title = task.title_c || task.title
+  const description = task.description_c || task.description
+  const priority = task.priority_c || task.priority
+  const overdue = !completed && dueDate && isOverdue(dueDate)
 
   return (
     <motion.div
@@ -32,7 +37,7 @@ const TaskCard = ({ task, category, onComplete, onEdit, onDelete }) => {
       exit={{ opacity: 0, scale: 0.95, y: -10 }}
       transition={{ duration: 0.2 }}
       className={`bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 hover:-translate-y-1 ${
-        task.completed ? 'opacity-60' : ''
+completed ? 'opacity-60' : ''
       } ${overdue ? 'ring-2 ring-red-200 bg-red-50/30' : ''}`}
     >
       <div className="flex items-start justify-between">
@@ -40,7 +45,7 @@ const TaskCard = ({ task, category, onComplete, onEdit, onDelete }) => {
           {/* Checkbox */}
           <div className="pt-0.5">
             <Checkbox
-              checked={task.completed}
+checked={completed}
               onClick={handleComplete}
               className={isCompleting ? 'animate-pulse' : ''}
             />
@@ -50,31 +55,31 @@ const TaskCard = ({ task, category, onComplete, onEdit, onDelete }) => {
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between mb-2">
               <h3 className={`text-lg font-semibold text-gray-900 ${
-                task.completed ? 'line-through text-gray-500' : ''
+completed ? 'line-through text-gray-500' : ''
               }`}>
-                {task.title}
+                {title}
               </h3>
             </div>
 
-            {task.description && (
+{description && (
               <p className={`text-gray-600 mb-4 ${
-                task.completed ? 'line-through text-gray-400' : ''
+                completed ? 'line-through text-gray-400' : ''
               }`}>
-                {task.description}
+                {description}
               </p>
             )}
 
             {/* Tags and Date */}
             <div className="flex items-center gap-3 mb-4">
-              <PriorityBadge priority={task.priority} />
+<PriorityBadge priority={priority} />
               {category && <CategoryTag category={category} />}
               
-              {task.dueDate && (
+{dueDate && (
                 <div className={`flex items-center gap-1 text-sm ${
                   overdue ? 'text-red-600 font-medium' : 'text-gray-500'
                 }`}>
                   <ApperIcon name="Calendar" className="w-4 h-4" />
-                  {formatDate(task.dueDate)}
+                  {formatDate(dueDate)}
                   {overdue && (
                     <span className="bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-xs ml-2">
                       Overdue

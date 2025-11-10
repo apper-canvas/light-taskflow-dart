@@ -20,13 +20,19 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, categories = [] }) =>
   const [errors, setErrors] = useState({})
 
   useEffect(() => {
-    if (task) {
+if (task) {
+      const title = task.title_c || task.title || ''
+      const description = task.description_c || task.description || ''
+      const priority = task.priority_c || task.priority || 'medium'
+      const dueDate = task.due_date_c || task.dueDate
+      const categoryId = task.category_id_c?.Id || task.category_id_c || task.categoryId || ''
+      
       setFormData({
-        title: task.title || '',
-        description: task.description || '',
-        priority: task.priority || 'medium',
-        dueDate: task.dueDate ? new Date(task.dueDate) : null,
-        categoryId: task.categoryId || ''
+        title,
+        description,
+        priority,
+        dueDate: dueDate ? new Date(dueDate) : null,
+        categoryId: categoryId.toString()
       })
     } else {
       setFormData({
@@ -152,9 +158,9 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, categories = [] }) =>
                 onChange={(e) => handleChange('categoryId', e.target.value)}
               >
                 <option value="">No Category</option>
-                {categories.map(category => (
+{categories.map(category => (
                   <option key={category.Id} value={category.Id.toString()}>
-                    {category.name}
+                    {category.name_c || category.name}
                   </option>
                 ))}
               </Select>

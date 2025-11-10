@@ -1,24 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { RouterProvider } from 'react-router-dom'
-import { ToastContainer } from 'react-toastify'
-import { router } from '@/router'
+import { Provider } from 'react-redux'
+import { store } from '@/store/store'
+import App from './App.jsx'
 import './index.css'
+import 'react-toastify/dist/ReactToastify.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <>
-    <RouterProvider router={router} />
-    <ToastContainer
-      position="top-right"
-      autoClose={3000}
-      hideProgressBar={false}
-      newestOnTop={false}
-      closeOnClick
-      rtl={false}
-      pauseOnFocusLoss
-      draggable
-      pauseOnHover
-      style={{ zIndex: 9999 }}
-    />
-  </>
+  <Provider store={store}>
+    <App />
+  </Provider>
 )

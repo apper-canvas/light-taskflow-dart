@@ -58,28 +58,33 @@ const Home = () => {
   }
 
   // Filter and search tasks
-  const filteredTasks = tasks.filter(task => {
+const filteredTasks = tasks.filter(task => {
     // Search filter
-    if (searchQuery && !task.title.toLowerCase().includes(searchQuery.toLowerCase()) && 
-        !task.description.toLowerCase().includes(searchQuery.toLowerCase())) {
+    const title = task.title_c || task.title || ''
+    const description = task.description_c || task.description || ''
+    if (searchQuery && !title.toLowerCase().includes(searchQuery.toLowerCase()) && 
+        !description.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false
     }
 
     // Category filter
+    const completed = task.completed_c !== undefined ? task.completed_c : task.completed
     if (selectedCategory === 'active') {
-      if (task.completed) return false
+      if (completed) return false
     } else if (selectedCategory === 'completed') {
-      if (!task.completed) return false
+      if (!completed) return false
     } else if (selectedCategory !== 'all') {
-      if (task.categoryId !== selectedCategory) return false
+      const categoryId = task.category_id_c?.Id || task.category_id_c || task.categoryId
+      if (categoryId?.toString() !== selectedCategory) return false
     }
 
     // Status filter
-    if (filters.status === 'active' && task.completed) return false
-    if (filters.status === 'completed' && !task.completed) return false
+    if (filters.status === 'active' && completed) return false
+    if (filters.status === 'completed' && !completed) return false
 
     // Priority filter
-    if (filters.priority.length > 0 && !filters.priority.includes(task.priority)) {
+    const priority = task.priority_c || task.priority
+    if (filters.priority.length > 0 && !filters.priority.includes(priority)) {
       return false
     }
 
@@ -90,15 +95,25 @@ const Home = () => {
   const sortedTasks = sortByDueDate(filteredTasks)
 
   // Calculate task counts for sidebar
-  const taskCounts = {
+const taskCounts = {
     all: tasks.length,
-    active: tasks.filter(t => !t.completed).length,
-    completed: tasks.filter(t => t.completed).length,
+    active: tasks.filter(t => {
+      const completed = t.completed_c !== undefined ? t.completed_c : t.completed
+      return !completed
+    }).length,
+    completed: tasks.filter(t => {
+      const completed = t.completed_c !== undefined ? t.completed_c : t.completed
+      return completed
+    }).length,
     categories: {}
   }
 
   categories.forEach(category => {
-    taskCounts.categories[category.Id] = tasks.filter(t => t.categoryId === category.Id.toString()).length
+    const categoryId = category.Id
+    taskCounts.categories[categoryId] = tasks.filter(t => {
+      const taskCategoryId = t.category_id_c?.Id || t.category_id_c || t.categoryId
+      return taskCategoryId?.toString() === categoryId.toString()
+    }).length
   })
 
   // Task actions
@@ -248,7 +263,13 @@ const Home = () => {
                     TaskFlow
                   </h1>
                   <p className="text-gray-600">
-                    {tasks.filter(t => !t.completed).length} active tasks • {tasks.filter(t => t.completed).length} completed
+{tasks.filter(t => {
+                      const completed = t.completed_c !== undefined ? t.completed_c : t.completed
+                      return !completed
+                    }).length} active tasks • {tasks.filter(t => {
+                      const completed = t.completed_c !== undefined ? t.completed_c : t.completed
+                      return completed
+                    }).length} completed
                   </p>
                 </div>
               </div>

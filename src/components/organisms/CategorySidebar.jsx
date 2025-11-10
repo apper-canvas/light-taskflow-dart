@@ -79,13 +79,13 @@ const CategorySidebar = ({
               <div className="space-y-2">
                 {categories.map(category => (
                   <SidebarItem
-                    key={category.Id}
-                    icon="Folder"
-                    label={category.name}
+key={category.Id}
+                    icon={category.icon_c || category.icon || "Folder"}
+                    label={category.name_c || category.name}
                     count={taskCounts.categories?.[category.Id] || 0}
                     isActive={selectedCategory === category.Id.toString()}
                     onClick={() => onCategorySelect(category.Id.toString())}
-                    color={category.color}
+                    color={category.color_c || category.color}
                     isCollapsed={isCollapsed}
                   />
                 ))}
