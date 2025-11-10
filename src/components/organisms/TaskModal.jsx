@@ -57,13 +57,12 @@ if (task) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (validateForm()) {
+if (validateForm()) {
       onSave({
         ...formData,
         title: formData.title.trim(),
         description: formData.description.trim()
       })
-      toast.success(task ? 'Task updated successfully!' : 'Task created successfully!')
       onClose()
     }
   }

@@ -104,7 +104,7 @@ export const taskService = {
         ]
       }
 
-      const response = await apperClient.createRecord(TABLE_NAME, params)
+const response = await apperClient.createRecord(TABLE_NAME, params)
 
       if (!response.success) {
         console.error(response.message)
@@ -112,6 +112,7 @@ export const taskService = {
         return null
       }
 
+      toast.success('Task created successfully!')
       if (response.results) {
         const successful = response.results.filter(r => r.success)
         const failed = response.results.filter(r => !r.success)
@@ -161,7 +162,7 @@ export const taskService = {
         ]
       }
 
-      const response = await apperClient.updateRecord(TABLE_NAME, params)
+const response = await apperClient.updateRecord(TABLE_NAME, params)
 
       if (!response.success) {
         console.error(response.message)
@@ -169,6 +170,7 @@ export const taskService = {
         return null
       }
 
+      toast.success('Task updated successfully!')
       if (response.results) {
         const successful = response.results.filter(r => r.success)
         const failed = response.results.filter(r => !r.success)
