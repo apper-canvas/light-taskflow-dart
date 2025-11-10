@@ -10,11 +10,12 @@ import { toast } from 'react-toastify'
 
 const TaskModal = ({ isOpen, onClose, onSave, task = null, categories = [] }) => {
   const [formData, setFormData] = useState({
-    title: '',
+title: '',
     description: '',
     priority: 'medium',
     dueDate: null,
-    categoryId: ''
+    categoryId: '',
+    summary: ''
   })
 
   const [errors, setErrors] = useState({})
@@ -22,25 +23,27 @@ const TaskModal = ({ isOpen, onClose, onSave, task = null, categories = [] }) =>
   useEffect(() => {
 if (task) {
       const title = task.title_c || task.title || ''
-      const description = task.description_c || task.description || ''
+const description = task.description_c || task.description || ''
       const priority = task.priority_c || task.priority || 'medium'
       const dueDate = task.due_date_c || task.dueDate
       const categoryId = task.category_id_c?.Id || task.category_id_c || task.categoryId || ''
-      
+      const summary = task.summary_c || task.summary || ''
       setFormData({
-        title,
+title,
         description,
         priority,
         dueDate: dueDate ? new Date(dueDate) : null,
-        categoryId: categoryId.toString()
+        categoryId: categoryId.toString(),
+        summary
       })
     } else {
-      setFormData({
+setFormData({
         title: '',
         description: '',
         priority: 'medium',
         dueDate: null,
-        categoryId: categories.length > 0 ? categories[0].Id.toString() : ''
+        categoryId: categories.length > 0 ? categories[0].Id.toString() : '',
+        summary: ''
       })
     }
     setErrors({})
@@ -58,10 +61,11 @@ if (task) {
   const handleSubmit = (e) => {
     e.preventDefault()
 if (validateForm()) {
-      onSave({
+onSave({
         ...formData,
         title: formData.title.trim(),
-        description: formData.description.trim()
+        description: formData.description.trim(),
+        summary: formData.summary.trim()
       })
       onClose()
     }
@@ -129,6 +133,23 @@ if (validateForm()) {
               onChange={(e) => handleChange('description', e.target.value)}
               rows={3}
             />
+          </div>
+
+{/* Summary */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Summary
+            </label>
+            <Textarea
+              value={formData.summary}
+              onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
+              placeholder="Brief summary of the task (auto-generated from title)"
+              rows={2}
+              className="w-full resize-none"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Summary is automatically generated from the task title, but can be customized
+            </p>
           </div>
 
           {/* Priority */}

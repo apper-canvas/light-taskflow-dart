@@ -1,5 +1,7 @@
-import { getApperClient } from '@/services/apperClient'
-import { toast } from 'react-toastify'
+import { toast } from "react-toastify";
+import React from "react";
+import { getApperClient } from "@/services/apperClient";
+import { create, getAll, getById, update } from "@/services/api/projectService";
 
 const TABLE_NAME = 'task_c'
 
@@ -12,7 +14,7 @@ export const taskService = {
       }
 
       const params = {
-        fields: [
+fields: [
           {"field": {"Name": "Id"}},
           {"field": {"Name": "Name"}},
           {"field": {"Name": "title_c"}},
@@ -23,7 +25,8 @@ export const taskService = {
           {"field": {"Name": "completed_c"}},
           {"field": {"Name": "completed_at_c"}},
           {"field": {"Name": "created_at_c"}},
-          {"field": {"Name": "updated_at_c"}}
+          {"field": {"Name": "updated_at_c"}},
+          {"field": {"Name": "summary_c"}}
         ],
         orderBy: [{"fieldName": "Id", "sorttype": "DESC"}]
       }
@@ -52,7 +55,7 @@ export const taskService = {
 
       const params = {
         fields: [
-          {"field": {"Name": "Id"}},
+{"field": {"Name": "Id"}},
           {"field": {"Name": "Name"}},
           {"field": {"Name": "title_c"}},
           {"field": {"Name": "description_c"}},
@@ -62,7 +65,8 @@ export const taskService = {
           {"field": {"Name": "completed_c"}},
           {"field": {"Name": "completed_at_c"}},
           {"field": {"Name": "created_at_c"}},
-          {"field": {"Name": "updated_at_c"}}
+          {"field": {"Name": "updated_at_c"}},
+          {"field": {"Name": "summary_c"}}
         ]
       }
 
@@ -80,14 +84,42 @@ export const taskService = {
     }
   },
 
-  create: async (taskData) => {
+create: async (taskData) => {
     try {
+      // Generate summary for the task
+      let summary = '';
+      if (taskData.title || taskData.title_c) {
+        try {
+          const { ApperClient } = window.ApperSDK;
+          const apperClient = new ApperClient({
+            apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+            apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+          });
+          
+          const summaryResult = await ApperClient.functions.invoke(import.meta.env.VITE_GENERATE_TASK_SUMMARY, {
+            body: JSON.stringify({
+              title: taskData.title || taskData.title_c
+            }),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (summaryResult.success && summaryResult.data?.summary) {
+            summary = summaryResult.data.summary;
+}
+        } catch (summaryError) {
+          console.info(`apper_info: Got this error in this function: ${import.meta.env.VITE_GENERATE_TASK_SUMMARY}. The error is: ${summaryError.message}`);
+          // Continue with empty summary if generation fails
+        }
+      }
+
       const apperClient = getApperClient()
       if (!apperClient) {
         throw new Error('ApperClient not initialized')
       }
 
-      const params = {
+const params = {
         records: [
           {
             Name: taskData.title || taskData.title_c,
@@ -99,7 +131,8 @@ export const taskService = {
             completed_c: false,
             completed_at_c: null,
             created_at_c: new Date().toISOString(),
-            updated_at_c: new Date().toISOString()
+            updated_at_c: new Date().toISOString(),
+            summary_c: summary || ''
           }
         ]
       }
@@ -141,17 +174,43 @@ update: async (id, updateData) => {
       }
 
       // Build update object with only defined updateable fields to prevent RLS violations
-      const updateRecord = {
+const updateRecord = {
         Id: parseInt(id),
         updated_at_c: new Date().toISOString()
       }
+      
+      // Check if title is being updated to regenerate summary
+      let shouldUpdateSummary = false;
+      if (updateData.title !== undefined && updateData.title !== null) {
+        shouldUpdateSummary = true;
+      }
 
-      // Only include fields with actual values to prevent RLS policy violations
+// Only include fields with actual values to prevent RLS policy violations
       if (updateData.title !== undefined && updateData.title !== null) {
         updateRecord.Name = updateData.title
         updateRecord.title_c = updateData.title
+        
+        // Generate new summary when title changes
+        try {
+          const { ApperClient } = window.ApperSDK;
+          
+          const summaryResult = await ApperClient.functions.invoke(import.meta.env.VITE_GENERATE_TASK_SUMMARY, {
+            body: JSON.stringify({
+              title: updateData.title
+            }),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (summaryResult.success && summaryResult.data?.summary) {
+            updateRecord.summary_c = summaryResult.data.summary;
+          }
+        } catch (summaryError) {
+          console.info(`apper_info: Got this error in this function: ${import.meta.env.VITE_GENERATE_TASK_SUMMARY}. The error is: ${summaryError.message}`);
+          // Continue without updating summary if generation fails
+        }
       }
-      
       if (updateData.description !== undefined) {
         updateRecord.description_c = updateData.description
       }
@@ -174,10 +233,13 @@ update: async (id, updateData) => {
         updateRecord.completed_c = updateData.completed
       }
       
-      if (updateData.completedAt !== undefined) {
+if (updateData.completedAt !== undefined) {
         updateRecord.completed_at_c = updateData.completedAt
       }
-
+      
+      if (updateData.summary !== undefined && updateData.summary !== null) {
+        updateRecord.summary_c = updateData.summary
+      }
       const params = {
         records: [updateRecord]
       }
