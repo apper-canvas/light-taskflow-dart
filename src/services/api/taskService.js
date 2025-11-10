@@ -133,33 +133,53 @@ const response = await apperClient.createRecord(TABLE_NAME, params)
     }
   },
 
-  update: async (id, updateData) => {
+update: async (id, updateData) => {
     try {
       const apperClient = getApperClient()
       if (!apperClient) {
         throw new Error('ApperClient not initialized')
       }
 
+      // Build update object with only defined updateable fields to prevent RLS violations
+      const updateRecord = {
+        Id: parseInt(id),
+        updated_at_c: new Date().toISOString()
+      }
+
+      // Only include fields with actual values to prevent RLS policy violations
+      if (updateData.title !== undefined && updateData.title !== null) {
+        updateRecord.Name = updateData.title
+        updateRecord.title_c = updateData.title
+      }
+      
+      if (updateData.description !== undefined) {
+        updateRecord.description_c = updateData.description
+      }
+      
+      if (updateData.priority !== undefined && updateData.priority !== null) {
+        updateRecord.priority_c = updateData.priority
+      }
+      
+      if (updateData.dueDate !== undefined) {
+        updateRecord.due_date_c = updateData.dueDate ? 
+          (updateData.dueDate instanceof Date ? updateData.dueDate.toISOString() : updateData.dueDate) 
+          : null
+      }
+      
+      if (updateData.categoryId !== undefined) {
+        updateRecord.category_id_c = updateData.categoryId ? parseInt(updateData.categoryId) : null
+      }
+      
+      if (updateData.completed !== undefined) {
+        updateRecord.completed_c = updateData.completed
+      }
+      
+      if (updateData.completedAt !== undefined) {
+        updateRecord.completed_at_c = updateData.completedAt
+      }
+
       const params = {
-        records: [
-          {
-            Id: parseInt(id),
-            ...(updateData.title && { Name: updateData.title, title_c: updateData.title }),
-            ...(updateData.description !== undefined && { description_c: updateData.description }),
-            ...(updateData.priority && { priority_c: updateData.priority }),
-            ...(updateData.dueDate !== undefined && { 
-              due_date_c: updateData.dueDate ? 
-                (updateData.dueDate instanceof Date ? updateData.dueDate.toISOString() : updateData.dueDate) 
-                : null 
-            }),
-            ...(updateData.categoryId !== undefined && { 
-              category_id_c: updateData.categoryId ? parseInt(updateData.categoryId) : null 
-            }),
-            ...(updateData.completed !== undefined && { completed_c: updateData.completed }),
-            ...(updateData.completedAt !== undefined && { completed_at_c: updateData.completedAt }),
-            updated_at_c: new Date().toISOString()
-          }
-        ]
+        records: [updateRecord]
       }
 
 const response = await apperClient.updateRecord(TABLE_NAME, params)
@@ -191,7 +211,7 @@ const response = await apperClient.updateRecord(TABLE_NAME, params)
     }
   },
 
-  complete: async (id) => {
+complete: async (id) => {
     try {
       const apperClient = getApperClient()
       if (!apperClient) {
