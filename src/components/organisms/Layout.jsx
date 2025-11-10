@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import { useAuth } from '@/layouts/Root'
 import Button from '@/components/atoms/Button'
-import { ApperIcon } from '@/components/ApperIcon'
+import ApperIcon from '@/components/ApperIcon'
 
 function Layout() {
   const { logout } = useAuth()
