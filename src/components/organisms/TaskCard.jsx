@@ -18,14 +18,13 @@ const TaskCard = ({ task, category, onComplete, onEdit, onDelete }) => {
       setIsCompleting(false)
     }, 300)
   }
-
 const completed = task.completed_c !== undefined ? task.completed_c : task.completed
   const dueDate = task.due_date_c || task.dueDate
   const title = task.title_c || task.title
   const description = task.description_c || task.description
   const priority = task.priority_c || task.priority
+  const fileName = task.file_c || task.fileName
   const overdue = !completed && dueDate && isOverdue(dueDate)
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -88,11 +87,21 @@ completed ? 'line-through text-gray-500' : ''
                 </div>
               )}
             </div>
-          </div>
+</div>
+          
+          {/* File attachment indicator */}
+          {fileName && (
+            <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+              <ApperIcon name="Paperclip" size={12} />
+              <span className="truncate max-w-[120px]" title={fileName}>
+                {fileName}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-1 ml-4">
+<div className="flex items-center gap-1 ml-4">
           <Button
             variant="ghost"
             size="icon"

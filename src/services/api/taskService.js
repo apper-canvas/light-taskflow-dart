@@ -26,7 +26,8 @@ fields: [
           {"field": {"Name": "completed_at_c"}},
           {"field": {"Name": "created_at_c"}},
           {"field": {"Name": "updated_at_c"}},
-          {"field": {"Name": "summary_c"}}
+          {"field": {"Name": "summary_c"}},
+          {"field": {"Name": "file_c"}}
         ],
         orderBy: [{"fieldName": "Id", "sorttype": "DESC"}]
       }
@@ -66,7 +67,8 @@ fields: [
           {"field": {"Name": "completed_at_c"}},
           {"field": {"Name": "created_at_c"}},
           {"field": {"Name": "updated_at_c"}},
-          {"field": {"Name": "summary_c"}}
+          {"field": {"Name": "summary_c"}},
+          {"field": {"Name": "file_c"}}
         ]
       }
 
@@ -132,7 +134,8 @@ const params = {
             completed_at_c: null,
             created_at_c: new Date().toISOString(),
             updated_at_c: new Date().toISOString(),
-            summary_c: summary || ''
+            summary_c: summary || '',
+            file_c: taskData.fileName || ''
           }
         ]
       }
@@ -211,10 +214,13 @@ const updateRecord = {
           // Continue without updating summary if generation fails
         }
       }
-      if (updateData.description !== undefined) {
+if (updateData.description !== undefined) {
         updateRecord.description_c = updateData.description
       }
       
+      if (updateData.fileName !== undefined) {
+        updateRecord.file_c = updateData.fileName || ''
+      }
       if (updateData.priority !== undefined && updateData.priority !== null) {
         updateRecord.priority_c = updateData.priority
       }
@@ -237,7 +243,7 @@ if (updateData.completedAt !== undefined) {
         updateRecord.completed_at_c = updateData.completedAt
       }
       
-      if (updateData.summary !== undefined && updateData.summary !== null) {
+if (updateData.summary !== undefined && updateData.summary !== null) {
         updateRecord.summary_c = updateData.summary
       }
       const params = {

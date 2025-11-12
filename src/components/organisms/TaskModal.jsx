@@ -5,9 +5,9 @@ import Input from '@/components/atoms/Input'
 import Textarea from '@/components/atoms/Textarea'
 import Select from '@/components/atoms/Select'
 import DatePicker from '@/components/molecules/DatePicker'
+import FileUpload from '@/components/atoms/FileUpload'
 import ApperIcon from '@/components/ApperIcon'
 import { toast } from 'react-toastify'
-
 const TaskModal = ({ isOpen, onClose, onSave, task = null, categories = [] }) => {
   const [formData, setFormData] = useState({
 title: '',
@@ -15,7 +15,8 @@ title: '',
     priority: 'medium',
     dueDate: null,
     categoryId: '',
-    summary: ''
+    summary: '',
+    fileName: ''
   })
 
   const [errors, setErrors] = useState({})
@@ -23,18 +24,20 @@ title: '',
   useEffect(() => {
 if (task) {
       const title = task.title_c || task.title || ''
-const description = task.description_c || task.description || ''
+      const description = task.description_c || task.description || ''
       const priority = task.priority_c || task.priority || 'medium'
       const dueDate = task.due_date_c || task.dueDate
       const categoryId = task.category_id_c?.Id || task.category_id_c || task.categoryId || ''
       const summary = task.summary_c || task.summary || ''
+      const fileName = task.file_c || task.fileName || ''
       setFormData({
-title,
+        title,
         description,
         priority,
         dueDate: dueDate ? new Date(dueDate) : null,
         categoryId: categoryId.toString(),
-        summary
+        summary,
+        fileName
       })
     } else {
 setFormData({
@@ -43,7 +46,8 @@ setFormData({
         priority: 'medium',
         dueDate: null,
         categoryId: categories.length > 0 ? categories[0].Id.toString() : '',
-        summary: ''
+        summary: '',
+        fileName: ''
       })
     }
     setErrors({})
@@ -62,10 +66,11 @@ setFormData({
     e.preventDefault()
 if (validateForm()) {
 onSave({
-        ...formData,
+...formData,
         title: formData.title.trim(),
         description: formData.description.trim(),
-        summary: formData.summary.trim()
+        summary: formData.summary.trim(),
+        fileName: formData.fileName
       })
       onClose()
     }
@@ -151,7 +156,18 @@ onSave({
               Summary is automatically generated from the task title, but can be customized
             </p>
           </div>
-
+{/* File Upload */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Attach File (Optional)
+            </label>
+            <FileUpload
+              value={formData.fileName}
+              onChange={(fileName) => setFormData({ ...formData, fileName })}
+              accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif"
+              maxSize={10 * 1024 * 1024} // 10MB
+            />
+          </div>
           {/* Priority */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -199,7 +215,7 @@ onSave({
             />
           </div>
 
-          {/* Actions */}
+{/* Actions */}
           <div className="flex gap-3 pt-4">
             <Button type="submit" className="flex-1">
               <ApperIcon name="Save" className="w-4 h-4 mr-2" />
